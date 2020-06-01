@@ -38,7 +38,40 @@ const postLimiter = rateLimit({
   max: 1,
 })
 
-app.post('/books', postLimiter, addBook)
+// app.post('/books', postLimiter, addBook)
+
+app.post(
+  '/books',
+  [
+    check('author')
+      .not()
+      .isEmpty()
+      .isLength({ min: 5, max: 255 })
+      .trim(),
+    check('title')
+      .not()
+      .isEmpty()
+      .isLength({ min: 5, max: 255 })
+      .trim(),
+  ],
+  postLimiter,
+  (request, response) => {
+    const errors = validationResult(request)
+
+    if (!errors.isEmpty()) {
+      return response.status(422).json({ errors: errors.array() })
+    }
+
+    const { author, title } = request.body
+
+    pool.query('INSERT INTO books (author, title) VALUES ($1, $2)', [author, title], error => {
+      if (error) {
+        throw error
+      }
+      response.status(201).json({ status: 'success', message: 'Book added.' })
+    })
+  }
+)
 
 const getBooks = (request, response) => {
   pool.query('SELECT * FROM books', (error, results) => {
