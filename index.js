@@ -3,6 +3,11 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const { pool } = require('./config')
 
+const helmet = require('helmet')
+const compression = require('compression')
+const rateLimit = require('express-rate-limit')
+const { body, check } = require('express-validator')
+
 const app = express()
 
 app.use(bodyParser.json())
