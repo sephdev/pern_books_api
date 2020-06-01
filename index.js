@@ -31,13 +31,13 @@ const addBook = (request, response) => {
 }
 
 app
-  .rout('/books')
+  .route('/books')
   // GET endpoint
   .get(getBooks)
   // POST endpoint
   .post(addBook)
 
 // Start server
-app.listen(process.emitWarning.PORT || 3002, () => {
+app.listen(process.env.PORT || 3002, () => {
   console.log(`Server listening`)
 })
