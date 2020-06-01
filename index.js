@@ -13,6 +13,32 @@ const app = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())
+app.use(compression())
+app.use(helmet())
+
+// Securing CORS
+const isProduction = process.env.NODE_ENV === 'production'
+const origin = {
+  origin: isProduction ? 'https://www.example.com' : '*',
+}
+
+app.use(cors(origin))
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 5, // 5 requests,
+})
+
+app.use(limiter)
+
+// Make certain endpoints stricter
+const postLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 1,
+})
+
+app.post('/books', postLimiter, addBook)
 
 const getBooks = (request, response) => {
   pool.query('SELECT * FROM books', (error, results) => {
